@@ -2,6 +2,8 @@
 
 Smart Wardrobe is a Spring Boot 3 service that powers an intelligent electronic wardrobe. It offers authentication, wardrobe management, statistics and file uploads via RESTful APIs.
 
+> Looking for the Chinese version? See [readme_zh.md](readme_zh.md).
+
 ## Tech Stack
 
 - Spring Boot 3
