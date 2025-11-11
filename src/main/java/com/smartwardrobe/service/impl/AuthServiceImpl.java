@@ -46,11 +46,30 @@ public class AuthServiceImpl implements AuthService {
         if (existing > 0) {
             throw new IllegalArgumentException("Username already exists");
         }
+        String email = normalizeOptional(request.getEmail());
+        if (email != null) {
+            long emailCount = userMapper.selectCount(new LambdaQueryWrapper<User>()
+                    .eq(User::getEmail, email));
+            if (emailCount > 0) {
+                throw new IllegalArgumentException("Email already in use");
+            }
+        }
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("ROLE_USER");
+        user.setEmail(email);
+        user.setGender(normalizeOptional(request.getGender()));
+        user.setRegion(normalizeOptional(request.getRegion()));
+        user.setStylePreference(normalizeOptional(request.getStylePreference()));
         user.setCreateTime(LocalDateTime.now());
         userMapper.insert(user);
+    }
+
+    private String normalizeOptional(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

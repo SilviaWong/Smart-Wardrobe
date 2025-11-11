@@ -26,12 +26,15 @@ java -jar target/smart-wardrobe-0.0.1-SNAPSHOT.jar
 ## Database Schema
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE `user` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    create_time DATETIME NOT NULL
+    email VARCHAR(100) UNIQUE,
+    gender VARCHAR(10),
+    region VARCHAR(50),
+    style_preference VARCHAR(100),
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE clothes (
@@ -42,11 +45,17 @@ CREATE TABLE clothes (
     color VARCHAR(50),
     season VARCHAR(50),
     tags VARCHAR(100),
+    brand VARCHAR(50),
+    price DECIMAL(10, 2),
+    purchase_date DATE,
     image_url VARCHAR(255),
-    create_time DATETIME NOT NULL,
-    CONSTRAINT fk_clothes_user FOREIGN KEY (user_id) REFERENCES users(id)
+    description TEXT,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_clothes_user FOREIGN KEY (user_id) REFERENCES `user`(id)
 );
 ```
+
+> Optional extensions: `tag`, `clothes_tag`, `outfit`, `outfit_item`, `wear_log`, and `image_resource` tables can be introduced later to support tagging, outfit curation, usage tracking, and centralized asset management.
 
 ## API Overview
 

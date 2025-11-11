@@ -36,7 +36,11 @@ public class ClothesServiceImpl implements ClothesService {
         clothes.setColor(dto.getColor());
         clothes.setSeason(dto.getSeason());
         clothes.setTags(dto.getTags());
+        clothes.setBrand(dto.getBrand());
+        clothes.setPrice(dto.getPrice());
+        clothes.setPurchaseDate(dto.getPurchaseDate());
         clothes.setImageUrl(dto.getImageUrl());
+        clothes.setDescription(dto.getDescription());
         clothes.setCreateTime(LocalDateTime.now());
         clothesMapper.insert(clothes);
         return clothes;
@@ -55,7 +59,11 @@ public class ClothesServiceImpl implements ClothesService {
         clothes.setColor(dto.getColor());
         clothes.setSeason(dto.getSeason());
         clothes.setTags(dto.getTags());
+        clothes.setBrand(dto.getBrand());
+        clothes.setPrice(dto.getPrice());
+        clothes.setPurchaseDate(dto.getPurchaseDate());
         clothes.setImageUrl(dto.getImageUrl());
+        clothes.setDescription(dto.getDescription());
         clothesMapper.updateById(clothes);
         return clothes;
     }

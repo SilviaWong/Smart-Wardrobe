@@ -6,14 +6,17 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
 
-@TableName("users")
+@TableName("user")
 public class User {
 
     @TableId(type = IdType.AUTO)
     private Long id;
     private String username;
     private String password;
-    private String role;
+    private String email;
+    private String gender;
+    private String region;
+    private String stylePreference;
     private LocalDateTime createTime;
 
     public Long getId() {
@@ -40,19 +43,43 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
     }
 
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getStylePreference() {
+        return stylePreference;
+    }
+
+    public void setStylePreference(String stylePreference) {
+        this.stylePreference = stylePreference;
     }
 }
