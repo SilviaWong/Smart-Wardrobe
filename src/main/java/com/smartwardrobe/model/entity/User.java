@@ -18,6 +18,7 @@ public class User {
     private String region;
     private String stylePreference;
     private LocalDateTime createTime;
+    private Boolean isActive;
 
     public Long getId() {
         return id;
@@ -81,5 +82,13 @@ public class User {
 
     public void setStylePreference(String stylePreference) {
         this.stylePreference = stylePreference;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }

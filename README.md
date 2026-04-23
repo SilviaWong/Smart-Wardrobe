@@ -1,23 +1,31 @@
-# Smart Wardrobe Backend
+# Smart Wardrobe
 
-Smart Wardrobe is a Spring Boot 3 service that powers an intelligent electronic wardrobe. It offers authentication, wardrobe management, statistics and file uploads via RESTful APIs.
+Smart Wardrobe is a full-stack intelligent electronic wardrobe system. It consists of a Spring Boot 3 backend service and a Flutter mobile application. It offers authentication, wardrobe management, intelligent outfit canvas creation, statistics, and item lifecycle management (decluttering) via RESTful APIs.
 
 > Looking for the Chinese version? See [readme_zh.md](readme_zh.md).
 
 ## Tech Stack
 
+**Backend:**
 - Spring Boot 3
 - MyBatis Plus
 - Spring Security + JWT
 - MySQL 8
 - Maven
-- Logback
 - Docker/Nginx (deployment ready)
+
+**Mobile Client:**
+- Flutter (Dart)
+- Provider (State Management)
+- Dio (Networking)
+- Flutter Card Swiper (Tinder-style decluttering)
+- FL Chart (Data visualization)
 
 ## Getting Started
 
+### Backend Setup
 1. Update `src/main/resources/application.yml` with your MySQL credentials and a Base64 encoded JWT secret.
-2. Create the required tables (see below for schema).
+2. Create the required tables in your database.
 3. Build and run the service:
 
 ```bash
@@ -25,39 +33,18 @@ mvn clean install
 java -jar target/smart-wardrobe-0.0.1-SNAPSHOT.jar
 ```
 
-## Database Schema
+### Mobile App Setup
+1. Ensure the backend is running locally on port 8080.
+2. Navigate to the `smart_wardrobe_app` directory.
+3. Run `flutter pub get` to fetch dependencies.
+4. Run `flutter run` on an iOS/Android simulator or physical device.
 
-```sql
-CREATE TABLE `user` (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    gender VARCHAR(10),
-    region VARCHAR(50),
-    style_preference VARCHAR(100),
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+## Core Features
 
-CREATE TABLE clothes (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    color VARCHAR(50),
-    season VARCHAR(50),
-    tags VARCHAR(100),
-    brand VARCHAR(50),
-    price DECIMAL(10, 2),
-    purchase_date DATE,
-    image_url VARCHAR(255),
-    description TEXT,
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_clothes_user FOREIGN KEY (user_id) REFERENCES `user`(id)
-);
-```
-
-> Optional extensions: `tag`, `clothes_tag`, `outfit`, `outfit_item`, `wear_log`, and `image_resource` tables can be introduced later to support tagging, outfit curation, usage tracking, and centralized asset management.
+1. **Item Management**: Add clothing items with images, category, color, season, and price.
+2. **Outfit Canvas**: Drag, scale, and rotate clothing items on a freeform canvas to create outfits and save their spatial configurations.
+3. **Declutter Challenge**: Swipe left/right on items that haven't been worn in over 180 days to effortlessly decide whether to keep or discard them.
+4. **Usage Analytics**: Automatically tracks cost-per-wear (CPW) and visualizes your wardrobe breakdown by category and season.
 
 ## API Overview
 
@@ -65,78 +52,23 @@ CREATE TABLE clothes (
 | ------ | ---- | ----------- |
 | POST | `/api/auth/login` | User login (returns JWT) |
 | POST | `/api/auth/register` | User registration |
-| GET | `/api/clothes` | List clothes (paginated) |
+| GET | `/api/clothes` | List clothes |
+| GET | `/api/clothes/{id}` | Get clothing item details |
 | POST | `/api/clothes` | Create clothing item |
 | PUT | `/api/clothes/{id}` | Update clothing item |
 | DELETE | `/api/clothes/{id}` | Delete clothing item |
-| GET | `/api/stats` | Aggregated wardrobe statistics |
+| GET | `/api/stats` | Aggregated wardrobe statistics (by category/season) |
 | POST | `/api/files` | Upload clothing images |
+| POST | `/api/outfits` | Save outfit canvas configuration |
+| POST | `/api/wears` | Log an item as worn today |
+| GET | `/api/locations` | List available wardrobe storage locations |
 
-All wardrobe endpoints require `Authorization: Bearer <token>` header.
+*Note: For development convenience, some endpoints currently permit unauthorized access. To secure them for production, update `SecurityConfig.java` to require JWT authentication.*
 
 ## File Uploads
 
-Uploaded files are stored under the `uploads/` directory. Static access is exposed via `/uploads/**`.
-
-## Front-End Integration Guide
-
-To connect a front-end client (for example, a React/Vue/Angular single-page application) with the Smart Wardrobe backend, follow the steps below:
-
-1. **Configure the API base URL**
-   - Determine the backend origin (e.g., `http://localhost:8080` for local development or the deployed domain behind Nginx).
-   - Create a reusable API client in the front-end that prefixes all requests with `/api`, for example:
-     ```js
-     // src/services/http.js
-     import axios from 'axios';
-
-     const http = axios.create({
-       baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
-     });
-
-     export default http;
-     ```
-   - Expose the base URL through an environment variable such as `VITE_API_BASE_URL` (Vite) or `REACT_APP_API_BASE_URL` (Create React App).
-
-2. **Handle authentication tokens**
-   - Call `POST /api/auth/login` with the username and password collected from the login form.
-   - Store the returned JWT (e.g., in memory or `localStorage`).
-   - Attach `Authorization: Bearer <token>` headers to all protected requests:
-     ```js
-     http.interceptors.request.use((config) => {
-       const token = localStorage.getItem('smartWardrobeToken');
-       if (token) {
-         config.headers.Authorization = `Bearer ${token}`;
-       }
-       return config;
-     });
-     ```
-   - On logout, remove the stored token to invalidate the session client-side.
-
-3. **Support CORS during development**
-   - The backend allows cross-origin requests by default via `WebConfig`. If you deploy behind Nginx, ensure the proxy forwards the `Authorization` header and handles HTTPS termination.
-   - When running the front-end dev server, proxy API requests to avoid additional CORS configuration. For Vite:
-     ```js
-     // vite.config.js
-     export default defineConfig({
-       server: {
-         proxy: {
-           '/api': {
-             target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
-             changeOrigin: true,
-           },
-         },
-       },
-     });
-     ```
-
-4. **Consume API responses**
-   - All responses follow the unified structure `{ code, message, data }`. Handle success by reading from `response.data.data` and process validation errors using `response.data.message`.
-   - For file uploads, use multipart form submissions against `POST /api/files` and read the returned `imageUrl` to display previews.
-
-5. **Synchronize environments**
-   - Align the front-end `.env` (e.g., `VITE_API_BASE_URL=https://wardrobe.example.com/api`) with the backend deployment URLs.
-   - When using Docker Compose, add the front-end service and set `API_BASE_URL` via environment variables to reference the backend container name (e.g., `http://smart-wardrobe-backend:8080/api`).
+Uploaded files are stored under the `uploads/` directory on the server. Static access is exposed via `/uploads/**`.
 
 ## Docker & Nginx
 
-The project can be containerized with Docker and served behind Nginx. Configure the image to expose port `8080` and proxy requests from Nginx.
+The project can be containerized with Docker and served behind Nginx. Configure the image to expose port `8080` and proxy requests from Nginx. Ensure that the proxy handles multipart file uploads correctly by increasing `client_max_body_size`.

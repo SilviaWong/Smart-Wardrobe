@@ -24,6 +24,10 @@ public class Clothes {
     private LocalDate purchaseDate;
     private String imageUrl;
     private String description;
+    private Long locationId;
+    private String status;
+    private Integer wearCount;
+    private LocalDateTime lastWornDate;
     private LocalDateTime createTime;
 
     public Long getId() {
@@ -120,6 +124,38 @@ public class Clothes {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getWearCount() {
+        return wearCount;
+    }
+
+    public void setWearCount(Integer wearCount) {
+        this.wearCount = wearCount;
+    }
+
+    public LocalDateTime getLastWornDate() {
+        return lastWornDate;
+    }
+
+    public void setLastWornDate(LocalDateTime lastWornDate) {
+        this.lastWornDate = lastWornDate;
     }
 
     public LocalDateTime getCreateTime() {

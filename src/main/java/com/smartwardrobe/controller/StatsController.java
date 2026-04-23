@@ -27,12 +27,18 @@ public class StatsController {
     @GetMapping
     public ApiResponse<StatsResponse> stats() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username));
-        if (user == null) {
-            throw new IllegalStateException("User not found");
+        Long userId;
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            userId = 1L;
+        } else {
+            String username = authentication.getName();
+            User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, username));
+            if (user == null) {
+                throw new IllegalStateException("User not found");
+            }
+            userId = user.getId();
         }
-        return ApiResponse.success(statsService.summarize(user.getId()));
+        return ApiResponse.success(statsService.summarize(userId));
     }
 }
